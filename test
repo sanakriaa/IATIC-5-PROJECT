@@ -1,0 +1,43 @@
+{'queryText': 'coucou',
+ 'action': 'input.welcome',
+  'parameters': {},
+   'allRequiredParamsPresent': True,
+    'fulfillmentText': 'Bonjour',
+     'fulfillmentMessages': [
+         {'platform': 'ACTIONS_ON_GOOGLE',
+          'simpleResponses': {
+              'simpleResponses': [{
+                  'textToSpeech': 'Bonjour'
+                  }]
+            }
+        }, 
+          {'platform': 'ACTIONS_ON_GOOGLE',
+           'simpleResponses': {
+               'simpleResponses': [{
+                   'textToSpeech': 'comment je peux vous aider'
+                   }]
+            }
+        }, 
+          {'platform': 'ACTIONS_ON_GOOGLE', 
+          'suggestions': {
+              'suggestions': [{'title': 'français'}, 
+              {'title': 'English'}]}}, {'text': {'text': ['Bonjour']}}, {'text': {'text': ['comment je peux vous aider']}}
+          ], 'outputContexts': [{'name': 'projects/bot-ucgm/agent/sessions/b45d4976-7fe7-f32b-6bf6-993bff5e197e/contexts/__system_counters__', 'parameters': {'no-input': 0.0, 'no-match': 0.0}}], 'intent': {'name': 'projects/bot-ucgm/agent/intents/1a173023-2a4f-4745-ba78-a48e2ba05f56', 'displayName': 'Default Welcome Intent'}, 'intentDetectionConfidence': 1.0, 'languageCode': 'fr'}
+
+
+
+
+
+
+          CREATE 
+          (LAvare:Event 
+            {
+              title:'L Avare', 
+              type:'Theater', 
+              description:'Harpagon, est caractérisé par son avarice caricaturale', 
+              date:'31/04/2021', 
+              heure:'21h', 
+              lieu:'theatre de paris', 
+              tarif:'15€'
+            }
+           )

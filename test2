@@ -1,0 +1,111 @@
+from flask import Flask,request,render_template,redirect, jsonify,make_response
+from neo4j import GraphDatabase
+import csv
+import os
+import dialogflow
+import requests
+import json
+import pusher
+import urllib
+
+
+, row["a"]["date"], row["a"]["heure"], row["a"]["tarif"], row["a"]["description"], row["a"]["type"], row["a"]["lieu"]
+
+
+    with open("cred.txt")as f1:
+    data=csv.reader(f1,delimiter=",")
+    for row in data:
+        id=row[0]
+        pwd=row[1]
+    f1.close()
+
+    driver=GraphDatabase.driver(uri="bolt://localhost:11005",auth=(id,pwd),encrypted=False)
+    session=driver.session(database="eventdb")
+
+    app=Flask(__name__)
+
+    # default route
+    @app.route('/')
+    def index():
+        return 'Hello World'
+
+    # function for responses
+    def results():
+        # build a request object
+        ListOfReturnedMsg = []
+        req = request.get_json(force=True)
+
+        # fetch action from json
+        #action = req.get('queryResult').get('action')
+        for i in range(len(req.get('queryResult').get('fulfillmentMessages'))):
+            returnMsg1 = req.get('queryResult').get('fulfillmentMessages')[i]
+            ListOfReturnedMsg.append(returnMsg1)
+        print('--------- sortie -----------')
+        print(req.get('queryResult').get('queryText'))
+        #self._create_event("event_test", "event_type_test", "event_description_test", "event_date_test", "event_heure_test", "event_lieu_test", "event_tarif_test")
+
+        #bot-event-hwde
+
+        # return a fulfillment response
+        return {'fulfillmentText':ListOfReturnedMsg}
+
+    # create a route for webhook
+    @app.route('/webhook', methods=['GET', 'POST'])
+    def webhook():
+        # return response
+        return make_response(jsonify(results()))
+
+    @staticmethod
+    def _create_and_return_greeting(tx, title, type, description, date, heure, lieu, tarif):
+        result = tx.run("CREATE (a:Event) "
+                        "SET a.title = $title, a.type = $type, a.description = $description, a.date = $date, a.heure = $heure, a.lieu = $lieu, a.tarif=$tarif"
+                        "RETURN a.title + ', from node ' + id(a)", title=title)
+        return result.single()
+
+    @app.route("/listeOfevent")
+    def listeOfevent():
+        query="""
+        MATCH(a:Event)
+        return a.title as title ,a.date as date, a.lieu as lieu
+        """
+        results=session.run(query)
+        listeOfevent=[]
+        for result in results:
+            dc={}
+            title=result["title"]
+            date=result["date"]
+            lieu=result["lieu"]
+            dc.update({"Title":title,"Date":date, "Lieu":lieu})
+            listeOfevent.append(dc)
+        return jsonify ({
+            'listeOfevent': listeOfevent
+            })
+    @app.route("/detailsOfOneEvent",methods=["GET","POST"])
+    def detailsOfOneEvent():
+    title=request.form["title"]
+    query="""
+    MATCH(a:Event{title:$title})
+    return a.title as title, a.date, a.heure, a.tarif, a.description, a.type, a.lieu
+    """
+    parameter={"title":title}
+    results=session.run(query,parameter)
+    detailsOfOneEvent=[]
+    for result in results:
+        ParamsEvents={}
+        title=result["title"]
+        lieu=result["lieu"]
+        date=result["date"]
+        heure=result["heure"]
+        tarif=result["tarif"]
+        description=result["description"]
+        typeOf=result["type"]
+        ParamsEvents.update({"Title":title,"Date":date, "Lieu":lieu,"Heure":heure, "Tarif":tarif, "Description":description,"Type":typeOf})
+        detailsOfOneEvent.append(ParamsEvents)
+    return jsonify ({
+        'detailsOfOneEvent': detailsOfOneEvent
+        })
+
+
+
+if __name__=='__main__':
+    app.run(port=5000, debug="False")
